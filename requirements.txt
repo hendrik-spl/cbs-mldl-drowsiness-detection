@@ -1,0 +1,12 @@
+ipykernel==6.29.4
+numpy==1.26.0
+pydot==2.0.0
+tqdm==4.66.4
+matplotlib==3.8.4
+seaborn==0.13.2
+tensorflow==2.5.0
+scikeras==0.1.8
+scikit-learn==1.4.2
+keras==2.6.0
+keras-vggface==0.6
+Keras-Applications==1.0.8
