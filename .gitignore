@@ -163,3 +163,5 @@ cython_debug/
 
 data/real/*
 data/synthetic/*
+
+.DS_Store
