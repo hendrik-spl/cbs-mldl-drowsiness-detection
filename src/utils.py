@@ -2,12 +2,13 @@ import tensorflow as tf
 
 data_augmentation = tf.keras.Sequential([
     tf.keras.layers.RandomFlip('horizontal'),
-    tf.keras.layers.RandomRotation(0.1),
-    tf.keras.layers.RandomContrast(0.1),
-    tf.keras.layers.RandomZoom((-0.1, 0.1))
+    tf.keras.layers.RandomRotation(0.2),
+    tf.keras.layers.RandomContrast(0.2),
+    tf.keras.layers.RandomZoom((-0.2, 0.2)),
+    tf.keras.layers.GaussianNoise(0.2)
 ])
 
-def load_and_preprocess_images(path, batch_size, image_size, seed, shuffle=False, subset=None, validation_split=None):
+def load_and_preprocess_images(path, batch_size, image_size, seed, shuffle=False, subset=None, validation_split=None, skip_preprocessing=False):
     """
     Load and preprocess images from a directory.
 
@@ -23,6 +24,7 @@ def load_and_preprocess_images(path, batch_size, image_size, seed, shuffle=False
     Returns:
         tf.data.Dataset: Preprocessed images.
     """
+
     raw_data = tf.keras.preprocessing.image_dataset_from_directory(
         path,
         batch_size=batch_size,
@@ -33,12 +35,15 @@ def load_and_preprocess_images(path, batch_size, image_size, seed, shuffle=False
         validation_split=validation_split,
     )
 
-    # # Apply data augmentation only if subset is 'training'
-    # if subset == 'training':
-    #     raw_data = raw_data.map(lambda x, y: (data_augmentation(x, training=True), y))
+    # Apply data augmentation only if subset is 'training'
+    if subset == 'training':
+        preprocessed_data = raw_data.map(lambda x, y: (data_augmentation(x, training=True), y))
+    else:
+        preprocessed_data = raw_data
 
     # Apply MobileNet preprocessing
-    preprocess_input = tf.keras.applications.mobilenet.preprocess_input
-    preprocessed_data = raw_data.map(lambda x, y: (preprocess_input(x), y))
+    if not skip_preprocessing:
+        preprocess_input = tf.keras.applications.mobilenet.preprocess_input
+        preprocessed_data = preprocessed_data.map(lambda x, y: (preprocess_input(x), y))
 
     return preprocessed_data.cache().prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
