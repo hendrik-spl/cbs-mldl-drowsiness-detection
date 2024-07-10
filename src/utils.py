@@ -1,14 +1,6 @@
 import tensorflow as tf
 
-data_augmentation = tf.keras.Sequential([
-    tf.keras.layers.RandomFlip('horizontal'),
-    tf.keras.layers.RandomRotation(0.2),
-    tf.keras.layers.RandomContrast(0.2),
-    tf.keras.layers.RandomZoom((-0.2, 0.2)),
-    tf.keras.layers.GaussianNoise(0.2)
-])
-
-def load_and_preprocess_images(path, batch_size, image_size, seed, shuffle=False, subset=None, validation_split=None, skip_preprocessing=False):
+def load_and_preprocess_images(path, batch_size, image_size, seed, data_aug_rate=0, shuffle=True, subset=None, validation_split=None, skip_preprocessing=False):
     """
     Load and preprocess images from a directory.
 
@@ -24,6 +16,16 @@ def load_and_preprocess_images(path, batch_size, image_size, seed, shuffle=False
     Returns:
         tf.data.Dataset: Preprocessed images.
     """
+
+    tf.keras.utils.set_random_seed(seed)
+
+    data_augmentation = tf.keras.Sequential([
+    tf.keras.layers.RandomFlip('horizontal', seed=seed),
+    tf.keras.layers.RandomRotation(data_aug_rate, seed=seed),
+    tf.keras.layers.RandomContrast(data_aug_rate, seed=seed),
+    tf.keras.layers.RandomZoom((-data_aug_rate, data_aug_rate), seed=seed),
+    tf.keras.layers.GaussianNoise(data_aug_rate, seed=seed)
+    ])
 
     raw_data = tf.keras.preprocessing.image_dataset_from_directory(
         path,
@@ -43,7 +45,7 @@ def load_and_preprocess_images(path, batch_size, image_size, seed, shuffle=False
 
     # Apply MobileNet preprocessing
     if not skip_preprocessing:
-        preprocess_input = tf.keras.applications.mobilenet.preprocess_input
+        preprocess_input = tf.keras.applications.mobilenet_v2.preprocess_input
         preprocessed_data = preprocessed_data.map(lambda x, y: (preprocess_input(x), y))
 
     return preprocessed_data.cache().prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
