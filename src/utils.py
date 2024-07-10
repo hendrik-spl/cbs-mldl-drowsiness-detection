@@ -11,15 +11,20 @@ def load_and_preprocess_images(path, batch_size, image_size, seed, data_aug_rate
         batch_size (int): Batch size.
         image_size (tuple): Image size.
         seed (int): Random seed.
-        shuffle (bool): Whether to shuffle the data.
-        subset (str): Subset of the data to load.
-        validation_split (float): Fraction of the data to use as validation.
+        data_aug_rate (float): Data augmentation rate. Default is 0.
+        shuffle (bool): Whether to shuffle the data. Default is True.
+        subset (str): Subset of the data to load. Default is None.
+        validation_split (float): Fraction of the data to use as validation. Default is None.
+        skip_preprocessing (bool): Whether to skip MobileNet preprocessing. Default is False.
 
     Returns:
         tf.data.Dataset: Preprocessed images.
     """
 
     tf.keras.utils.set_random_seed(seed)
+
+    if subset == 'training' and data_aug_rate == 0:
+        print('Warning: data_aug_rate is 0, but subset is set to training. No data augmentation will be applied.')
 
     data_augmentation = tf.keras.Sequential([
     tf.keras.layers.RandomFlip('horizontal', seed=seed),
@@ -53,10 +58,17 @@ def load_and_preprocess_images(path, batch_size, image_size, seed, data_aug_rate
     return preprocessed_data.cache().prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
 def plot_history(comment, history):
-    # plot accuracy and loss
-    plt.figure(figsize=(14, 4))
+    """
+    Plot training history.
+    
+    Parameters:
+        comment (str): Comment to display in the plot.
+        history (tf.keras.callbacks.History): Training history.
 
-    # plot headline
+    Returns:
+        None
+    """
+    plt.figure(figsize=(14, 4))
     plt.suptitle(comment)
 
     plt.subplot(1, 2, 1)
@@ -75,20 +87,24 @@ def plot_history(comment, history):
 
     plt.show()
 
-    # get the best val_accuracy and val_loss
-    best_train_accuracy = np.max(history.history['accuracy']).round(4)
-    best_train_loss = np.min(history.history['loss']).round(4)
-    best_val_accuracy = np.max(history.history['val_accuracy']).round(4)
-    best_val_loss = np.min(history.history['val_loss']).round(4)
-
-    print(f'Best train_accuracy: {best_train_accuracy}')
-    print(f'Best train_loss: {best_train_loss}')
-    print(f'Best val_accuracy: {best_val_accuracy}')
-    print(f'Best val_loss: {best_val_loss}')
+    print(f'Best train_accuracy: {np.max(history.history['accuracy']).round(4)}')
+    print(f'Best train_loss: {np.min(history.history['loss']).round(4)}')
+    print(f'Best val_accuracy: {np.max(history.history['val_accuracy']).round(4)}')
+    print(f'Best val_loss: {np.min(history.history['val_loss']).round(4)}')
     print(f'Last improvement at epoch: {np.argmax(history.history["val_accuracy"])+1}')
 
-
 def plot_images(img_orig, img_augm, num_images=5):
+    """
+    Plot original and augmented images.
+    
+    Parameters:
+        img_orig (tf.data.Dataset): Original images.
+        img_augm (tf.data.Dataset): Augmented images.
+        num_images (int): Number of images to plot. Default is 5.
+
+    Returns:
+        None
+    """
     plt.figure(figsize=(15, 6))
     images_displayed = 0
 
@@ -113,7 +129,17 @@ def plot_images(img_orig, img_augm, num_images=5):
             images_displayed += 1
 
 def plot_predictions(model, dataset, dataset_visual, class_names = ["Closed", "Open"], num_images=5):
-    plt.figure(figsize=(10, 5))
+    """
+    Plot predictions.
+    
+    Parameters:
+        model (tf.keras.Model): Model to use for predictions.
+        dataset (tf.data.Dataset): Dataset with images.
+        dataset_visual (tf.data.Dataset): Dataset with visual images.
+        class_names (list): Class names. Default is ["Closed", "Open"].
+        num_images (int): Number of images to plot. Default is 5.
+    """
+    plt.figure(figsize=(15, 6))
     images_displayed = 0
 
     for (images, labels), (images_visual, _) in zip(dataset.take(1), dataset_visual.take(1)):
