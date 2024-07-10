@@ -87,10 +87,10 @@ def plot_history(comment, history):
 
     plt.show()
 
-    print(f'Best train_accuracy: {np.max(history.history['accuracy']).round(4)}')
-    print(f'Best train_loss: {np.min(history.history['loss']).round(4)}')
-    print(f'Best val_accuracy: {np.max(history.history['val_accuracy']).round(4)}')
-    print(f'Best val_loss: {np.min(history.history['val_loss']).round(4)}')
+    print(f'Best train_accuracy: {np.max(history.history["accuracy"]).round(4)}')
+    print(f'Best train_loss: {np.min(history.history["loss"]).round(4)}')
+    print(f'Best val_accuracy: {np.max(history.history["val_accuracy"]).round(4)}')
+    print(f'Best val_loss: {np.min(history.history["val_loss"]).round(4)}')
     print(f'Last improvement at epoch: {np.argmax(history.history["val_accuracy"])+1}')
 
 def plot_images(img_orig, img_augm, num_images=5):
