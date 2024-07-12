@@ -31,6 +31,7 @@ def load_and_preprocess_images(path, batch_size, image_size, seed, data_aug_rate
     tf.keras.layers.RandomRotation(data_aug_rate, seed=seed),
     tf.keras.layers.RandomContrast(data_aug_rate, seed=seed),
     tf.keras.layers.RandomZoom((-data_aug_rate, data_aug_rate), seed=seed),
+    tf.keras.layers.RandomBrightness(data_aug_rate, seed=seed),
     tf.keras.layers.GaussianNoise(data_aug_rate, seed=seed)
     ])
 
