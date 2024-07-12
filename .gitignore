@@ -170,3 +170,6 @@ data/*
 
 # ignore all .keras files
 *.keras
+
+# ignore all .h5 files
+*.h5
