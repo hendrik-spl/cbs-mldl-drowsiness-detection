@@ -1,4 +1,6 @@
+from sklearn.metrics import precision_score, accuracy_score, recall_score, confusion_matrix
 import matplotlib.pyplot as plt
+import seaborn as sns
 import tensorflow as tf
 import numpy as np
 
@@ -68,15 +70,47 @@ def plot_predictions(model, dataset, dataset_visual, class_names = ["Closed", "O
 
 def evaluate_model(model, test_data):
     """
-    Evaluate the model on the test data.
+    Evaluate a model on a test dataset, print metrics and plot a confusion matrix.
     
     Args:
     model: A compiled model.
-    test_data: A tuple of test data (X_test, y_test).
+    test_data: A test dataset.
     
     Returns:
     None
     """
-    loss, accuracy = model.evaluate(test_data)
-    print(f"Test loss: {loss}")
-    print(f"Test accuracy: {accuracy}")
+
+    # Initialize lists to store predictions and true labels
+    y_pred = []
+    y_true = []
+
+    # Iterate over the test data and make predictions
+    for images, labels in test_data:
+        predictions = model.predict(images, verbose=0)
+        y_pred.extend(np.argmax(predictions, axis=-1))
+        y_true.extend(labels.numpy())
+
+    # convert predictions and true labels to numpy arrays
+    y_pred = np.array(y_pred)
+    y_true = np.array(y_true)
+    
+    # calculate metrics
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred)
+    f1_score = 2 * (precision * recall) / (precision + recall)
+
+    # print metrics
+    print(f"Test accuracy: {round(accuracy, 3)}")
+    print(f"Test precision: {round(precision, 3)}")
+    print(f"Test recall: {round(recall, 3)}")
+    print(f"Test F1 score: {round(f1_score, 3)}")
+
+    # plot confusion matrix
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=['0', '1'], yticklabels=['0', '1'])
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title('Confusion Matrix')
+    plt.show()
