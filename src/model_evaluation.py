@@ -26,10 +26,10 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
         predictions = model.predict(images, verbose=0)
         y_pred.extend(np.argmax(predictions, axis=-1))
         y_true.extend(labels.numpy())
-        y_pred_prob.extend(predictions[:, 1])
+        y_pred_prob.extend(predictions[:, 1])  # Assuming the second column is the probability for class 1
 
     # convert predictions and true labels to numpy arrays
-    y_pred = np.array(y_pred)
+    y_pred = np.array(y_pred)  
     y_true = np.array(y_true)
     y_pred_prob = np.array(y_pred_prob)
     
@@ -49,12 +49,12 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
     if show_cm:
         cm = confusion_matrix(y_true, y_pred)
         plt.figure(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=labels, yticklabels=labels)
+        sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=['Closed', 'Open'], yticklabels=['Closed', 'Open'])
         plt.xlabel('Predicted')
         plt.ylabel('True')
         plt.title('Confusion Matrix')
         plt.show()
-
+        
     # plot ROC curve
     if show_roc:
         fpr, tpr, _ = roc_curve(y_true, y_pred_prob)
