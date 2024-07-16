@@ -163,6 +163,7 @@ cython_debug/
 
 data/CEW_Data_Test_Train/*
 data/Unity_Data_Test_Train/*
+data/Unity_Data_Test_Train_V2/*
 
 .DS_Store
 
