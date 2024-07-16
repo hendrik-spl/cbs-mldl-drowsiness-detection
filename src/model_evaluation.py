@@ -1,74 +1,10 @@
-from sklearn.metrics import precision_score, accuracy_score, recall_score, confusion_matrix
+from sklearn.metrics import precision_score, accuracy_score, recall_score, confusion_matrix, roc_curve, auc
 import matplotlib.pyplot as plt
 import seaborn as sns
 import tensorflow as tf
 import numpy as np
 
-def plot_history(comment, history):
-    """
-    Plot training history.
-    
-    Parameters:
-        comment (str): Comment to display in the plot.
-        history (tf.keras.callbacks.History): Training history.
-
-    Returns:
-        None
-    """
-    plt.figure(figsize=(14, 4))
-    plt.suptitle(comment)
-
-    plt.subplot(1, 2, 1)
-    plt.plot(history.history['accuracy'], label='Training Accuracy')
-    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.legend()
-
-    plt.subplot(1, 2, 2)
-    plt.plot(history.history['loss'], label='Training Loss')
-    plt.plot(history.history['val_loss'], label='Validation Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-
-    plt.show()
-
-    print(f'Best train_accuracy: {np.max(history.history["accuracy"]).round(4)}')
-    print(f'Best train_loss: {np.min(history.history["loss"]).round(4)}')
-    print(f'Best val_accuracy: {np.max(history.history["val_accuracy"]).round(4)}')
-    print(f'Best val_loss: {np.min(history.history["val_loss"]).round(4)}')
-    print(f'Last improvement at epoch: {np.argmax(history.history["val_accuracy"])+1}')
-
-def plot_predictions(model, dataset, dataset_visual, class_names = ["Closed", "Open"], num_images=5):
-    """
-    Plot predictions.
-    
-    Parameters:
-        model (tf.keras.Model): Model to use for predictions.
-        dataset (tf.data.Dataset): Dataset with images.
-        dataset_visual (tf.data.Dataset): Dataset with visual images.
-        class_names (list): Class names. Default is ["Closed", "Open"].
-        num_images (int): Number of images to plot. Default is 5.
-    """
-    plt.figure(figsize=(15, 6))
-    images_displayed = 0
-
-    for (images, labels), (images_visual, _) in zip(dataset.take(1), dataset_visual.take(1)):
-        predictions = model.predict(images)
-        predicted_labels = tf.argmax(predictions, axis=1)
-
-        for i in range(len(images)):
-            if images_displayed >= num_images:
-                break
-
-            plt.subplot(1, num_images, images_displayed + 1)
-            plt.imshow(images_visual[i].numpy().astype("uint8"))
-            plt.title(f"True: {class_names[labels[i]]}\nPred: {class_names[predicted_labels[i]]}")
-            plt.axis("off")
-            images_displayed += 1
-
-def evaluate_model(model, test_data):
+def evaluate_model(model, test_data, labels, show_cm=True, show_roc=True):
     """
     Evaluate a model on a test dataset, print metrics and plot a confusion matrix.
     
@@ -83,16 +19,19 @@ def evaluate_model(model, test_data):
     # Initialize lists to store predictions and true labels
     y_pred = []
     y_true = []
+    y_pred_prob = []
 
     # Iterate over the test data and make predictions
     for images, labels in test_data:
         predictions = model.predict(images, verbose=0)
         y_pred.extend(np.argmax(predictions, axis=-1))
         y_true.extend(labels.numpy())
+        y_pred_prob.extend(predictions[:, 1])
 
     # convert predictions and true labels to numpy arrays
     y_pred = np.array(y_pred)
     y_true = np.array(y_true)
+    y_pred_prob = np.array(y_pred_prob)
     
     # calculate metrics
     accuracy = accuracy_score(y_true, y_pred)
@@ -107,10 +46,27 @@ def evaluate_model(model, test_data):
     print(f"Test F1 score: {round(f1_score, 3)}")
 
     # plot confusion matrix
-    cm = confusion_matrix(y_true, y_pred)
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=['0', '1'], yticklabels=['0', '1'])
-    plt.xlabel('Predicted')
-    plt.ylabel('True')
-    plt.title('Confusion Matrix')
-    plt.show()
+    if show_cm:
+        cm = confusion_matrix(y_true, y_pred)
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=labels, yticklabels=labels)
+        plt.xlabel('Predicted')
+        plt.ylabel('True')
+        plt.title('Confusion Matrix')
+        plt.show()
+
+    # plot ROC curve
+    if show_roc:
+        fpr, tpr, _ = roc_curve(y_true, y_pred_prob)
+        roc_auc = auc(fpr, tpr)
+
+        plt.figure(figsize=(8, 6))
+        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver Operating Characteristic')
+        plt.legend(loc="lower right")
+        plt.show()

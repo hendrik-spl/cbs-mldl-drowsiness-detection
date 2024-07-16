@@ -1,5 +1,6 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import numpy as np
 
 def load_and_preprocess_images(path, batch_size, image_size, seed, data_aug_rate=0, shuffle=True, subset=None, validation_split=None, skip_preprocessing=False):
     """
@@ -57,37 +58,38 @@ def load_and_preprocess_images(path, batch_size, image_size, seed, data_aug_rate
 
     return preprocessed_data.cache().prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
-def plot_images(img_orig, img_augm, num_images=5):
+def plot_history(comment, history):
     """
-    Plot original and augmented images.
+    Plot training history.
     
     Parameters:
-        img_orig (tf.data.Dataset): Original images.
-        img_augm (tf.data.Dataset): Augmented images.
-        num_images (int): Number of images to plot. Default is 5.
+        comment (str): Comment to display in the plot.
+        history (tf.keras.callbacks.History): Training history.
 
     Returns:
         None
     """
-    plt.figure(figsize=(15, 6))
-    images_displayed = 0
+    plt.figure(figsize=(14, 4))
+    plt.suptitle(comment)
 
-    # Take one batch from each dataset
-    for (images1, _), (images2, _) in zip(img_orig.take(1), img_augm.take(1)):
-        for i in range(num_images):
-            if images_displayed >= num_images:
-                break
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend()
 
-            # Plot original image
-            plt.subplot(2, num_images, images_displayed + 1)
-            plt.imshow(images1[i].numpy().astype("uint8"))
-            plt.title(f"Original")
-            plt.axis("off")
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
 
-            # Plot augmented image
-            plt.subplot(2, num_images, images_displayed + num_images + 1)
-            plt.imshow(images2[i].numpy().astype("uint8"))
-            plt.title(f"Augmented")
-            plt.axis("off")
+    plt.show()
 
-            images_displayed += 1
+    print(f'Best train_accuracy: {np.max(history.history["accuracy"]).round(4)}')
+    print(f'Best train_loss: {np.min(history.history["loss"]).round(4)}')
+    print(f'Best val_accuracy: {np.max(history.history["val_accuracy"]).round(4)}')
+    print(f'Best val_loss: {np.min(history.history["val_loss"]).round(4)}')
+    print(f'Last improvement at epoch: {np.argmax(history.history["val_accuracy"])+1}')
