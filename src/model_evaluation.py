@@ -4,7 +4,7 @@ import seaborn as sns
 import tensorflow as tf
 import numpy as np
 
-def evaluate_model(model, test_data, labels, show_cm=True, show_roc=True):
+def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, show_roc=True):
     """
     Evaluate a model on a test dataset, print metrics and plot a confusion matrix.
     
