@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import tensorflow as tf
 import numpy as np
+import time
 
 def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, show_roc=True):
     """
@@ -15,6 +16,7 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
     Returns:
     None
     """
+    start_time = time.time()
 
     # Initialize lists to store predictions and true labels
     y_pred = []
@@ -26,7 +28,9 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
         predictions = model.predict(images, verbose=0)
         y_pred.extend(np.argmax(predictions, axis=-1))
         y_true.extend(labels.numpy())
-        y_pred_prob.extend(predictions[:, 1])  # Assuming the second column is the probability for class 1
+        y_pred_prob.extend(predictions[:, 1])
+
+    duration = time.time() - start_time
 
     # convert predictions and true labels to numpy arrays
     y_pred = np.array(y_pred)  
@@ -44,6 +48,7 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
     print(f"Test precision: {round(precision, 3)}")
     print(f"Test recall: {round(recall, 3)}")
     print(f"Test F1 score: {round(f1_score, 3)}")
+    print(f"Prediction time: {round(duration, 2)} seconds")
 
     # plot confusion matrix
     if show_cm:
