@@ -5,6 +5,7 @@ import tensorflow as tf
 import numpy as np
 import time
 import sklearn
+from sklearn.pipeline import Pipeline
 
 def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, show_roc=True):
     """
@@ -19,7 +20,7 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
     """
     start_time = time.time()
 
-    if isinstance(model, sklearn.pipeline.Pipeline):
+    if isinstance(model, Pipeline):
         X_test, y_true = test_data
         y_pred = model.predict(X_test)
         y_pred = np.array(y_pred)
