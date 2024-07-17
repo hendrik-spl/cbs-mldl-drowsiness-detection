@@ -44,10 +44,10 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
     f1_score = 2 * (precision * recall) / (precision + recall)
 
     # print metrics
-    print(f"Test accuracy: {round(accuracy, 3)}")
-    print(f"Test precision: {round(precision, 3)}")
-    print(f"Test recall: {round(recall, 3)}")
-    print(f"Test F1 score: {round(f1_score, 3)}")
+    print(f"Test accuracy: {round(accuracy, 4)}")
+    print(f"Test precision: {round(precision, 4)}")
+    print(f"Test recall: {round(recall, 4)}")
+    print(f"Test F1 score: {round(f1_score, 4)}")
     print(f"Prediction time: {round(duration, 2)} seconds")
 
     # plot confusion matrix
@@ -66,7 +66,7 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
         roc_auc = auc(fpr, tpr)
 
         plt.figure(figsize=(8, 6))
-        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.4f})')
         plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
