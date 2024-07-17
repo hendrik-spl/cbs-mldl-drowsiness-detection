@@ -1,6 +1,8 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
+import os
 
 def load_and_preprocess_images(path, batch_size, image_size, seed, data_aug_rate=0, shuffle=True, subset=None, validation_split=None, skip_preprocessing=False):
     """
@@ -93,3 +95,16 @@ def plot_history(comment, history):
     print(f'Best val_accuracy: {np.max(history.history["val_accuracy"]).round(4)}')
     print(f'Best val_loss: {np.min(history.history["val_loss"]).round(4)}')
     print(f'Last improvement at epoch: {np.argmax(history.history["val_accuracy"])+1}')
+
+def load_images_from_folder(folder, label):
+    images = []
+    labels = []
+    for filename in os.listdir(folder):
+        img_path = os.path.join(folder, filename)
+        if img_path.endswith(".jpg"):
+            img = Image.open(img_path)
+            img = img.resize((64, 64))
+            img_array = np.array(img).flatten()
+            images.append(img_array)
+            labels.append(label)
+    return images, labels
