@@ -4,6 +4,7 @@ import seaborn as sns
 import tensorflow as tf
 import numpy as np
 import time
+import sklearn
 
 def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, show_roc=True):
     """
@@ -18,25 +19,33 @@ def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, sh
     """
     start_time = time.time()
 
-    # Initialize lists to store predictions and true labels
-    y_pred = []
-    y_true = []
-    y_pred_prob = []
+    if isinstance(model, sklearn.pipeline.Pipeline):
+        X_test, y_true = test_data
+        y_pred = model.predict(X_test)
+        y_pred = np.array(y_pred)
 
-    # Iterate over the test data and make predictions
-    for images, labels in test_data:
-        predictions = model.predict(images, verbose=0)
-        y_pred.extend(np.argmax(predictions, axis=-1))
-        y_true.extend(labels.numpy())
-        y_pred_prob.extend(predictions[:, 1])
+        y_pred_prob = model.decision_function(X_test) # get decision function scores
+
+    elif isinstance(model, tf.keras.Model):
+        # Initialize lists to store predictions and true labels
+        y_pred = []
+        y_true = []
+        y_pred_prob = []
+
+        # Iterate over the test data and make predictions
+        for images, labels in test_data:
+            predictions = model.predict(images, verbose=0)
+            y_pred.extend(np.argmax(predictions, axis=-1))
+            y_true.extend(labels.numpy())
+            y_pred_prob.extend(predictions[:, 1])
+
+        # convert predictions and true labels to numpy arrays
+        y_pred = np.array(y_pred)  
+        y_true = np.array(y_true)
+        y_pred_prob = np.array(y_pred_prob)
 
     duration = time.time() - start_time
-
-    # convert predictions and true labels to numpy arrays
-    y_pred = np.array(y_pred)  
-    y_true = np.array(y_true)
-    y_pred_prob = np.array(y_pred_prob)
-    
+        
     # calculate metrics
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred)
