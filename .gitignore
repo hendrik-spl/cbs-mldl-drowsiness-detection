@@ -175,3 +175,6 @@ data/Unity_Data_Test_Train_old/*
 
 # ignore all .h5 files
 *.h5
+
+# ignore all .joblib files
+*.joblib
