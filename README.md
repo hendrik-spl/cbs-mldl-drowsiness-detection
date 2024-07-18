@@ -54,8 +54,8 @@ The repository is meant to be understood in the context of the accompanying repo
 ## How to Use
 
 1. **Setup:**
-   - Create an environment using `requirements.txt`: `-m venv .venv`
-   - Activate the environment: `.venv/bin/activate>`
+   - Create an environment using `requirements.txt`: `python -m venv .venv`
+   - Activate the environment: `source .venv/bin/activate`
    - Install dependencies: `pip install -r requirements.txt`
 
 2. **Data Preparation:**
