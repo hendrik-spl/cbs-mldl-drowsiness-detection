@@ -59,7 +59,7 @@ The repository is meant to be understood in the context of the accompanying repo
    - Install dependencies: `pip install -r requirements.txt`
 
 2. **Data Preparation:**
-   - If the respective datasets `*_real_eyes.ipynb` and `*_real_eyes.ipynb` are available, no further action is needed. 
+   - If the respective datasets `CEW_Data_Test_Train` and `Unity_Data_Test_Train` are available, no further action is needed. 
    - Alternatively, please contact the authors for data access.
 
 3. **Model Training:**
