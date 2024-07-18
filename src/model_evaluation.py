@@ -4,7 +4,6 @@ import seaborn as sns
 import tensorflow as tf
 import numpy as np
 import time
-import sklearn
 from sklearn.pipeline import Pipeline
 
 def evaluate_model(model, test_data, labels=['Closed', 'Open'], show_cm=True, show_roc=True):
